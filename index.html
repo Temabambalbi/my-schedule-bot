@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Твое Расписание</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #000000; /* Глубокий черный фон */
+            --main-green: #00ff41; /* Яркий матричный зеленый */
+            --dark-green: #003300; /* Темно-зеленый для акцентов */
+            --text-color: #00ff41;
+            --card-bg: #0a0a0a; /* Чуть светлее фона для карточек */
+        }
+
+        body {
+            body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 15px; /* Чуть больше отступов по бокам */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box; /* Чтобы отступы не распирали экран */
+}
+
+/* Карточка урока — делаем выше для удобства нажатия */
+.lesson-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--dark-green);
+    border-radius: 12px; /* Более мягкие углы */
+    padding: 20px; /* Больше пространства внутри */
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 80px; /* Минимальная высота, чтобы палец не промахнулся */
+}
+
+/* Кнопки дней — делаем крупнее */
+.tab-btn {
+    font-size: 18px; 
+    padding: 10px 5px;
+}
+            font-family: 'Courier New', Courier, monospace; /* Моноширинный шрифт для стиля */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; /* Запрещаем скролл всего тела */
+        }
+
+        /* Кнопка "Настроить" в углу */
+        #settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: 1px solid var(--main-green);
+            color: var(--main-green);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 100;
+        }
+
+        /* --- Секция ПРОСМОТРА --- */
+        #view-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Табы (дни недели) */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid var(--dark-green);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            margin-top: 30px; /* Место под кнопку настроек */
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--dark-green);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--main-green);
+            border-bottom: 2px solid var(--main-green);
+        }
+
+        /* Список уроков (скроллится) */
+        #schedule-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Стилизация скроллбара (тоже зеленая) */
+        #schedule-list::-webkit-scrollbar { width: 4px; }
+        #schedule-list::-webkit-scrollbar-track { background: var(--bg-color); }
+        #schedule-list::-webkit-scrollbar-thumb { background: var(--dark-green); }
+
+        /* Карточка урока */
+        .lesson-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--dark-green);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lesson-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lesson-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .lesson-num {
+            color: var(--dark-green);
+            font-size: 12px;
+        }
+
+        .lesson-room {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff; /* Номер кабинета белым для контраста */
+            border: 1px solid var(--main-green);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        /* Заглушка, если уроков нет */
+        .no-lessons {
+            text-align: center;
+            color: var(--dark-green);
+            margin-top: 50px;
+            font-style: italic;
+        }
+
+        /* --- Секция РЕДАКТИРОВАНИЯ (скрыта по умолчанию) --- */
+        #edit-section {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 20px;
+        }
+
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--main-green);
+            padding-bottom: 10px;
+        }
+
+        h2 { margin: 0; color: var(--main-green); }
+
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+
+        label { font-size: 12px; color: var(--dark-green); }
+
+        input, select {
+            background-color: var(--card-bg);
+            border: 1px solid var(--dark-green);
+            color: var(--main-green);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--main-green);
+        }
+
+        .btn-block {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .main-btn {
+            flex-grow: 1;
+            background-color: var(--dark-green);
+            color: var(--main-green);
+            border: 1px solid var(--main-green);
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .main-btn.save { background-color: #004400; color: #ffffff; border: none;}
+        .main-btn.cancel { background: none; border: 1px solid var(--dark-green); color: var(--dark-green);}
+
+        /* Список для удаления уроков внутри редактора */
+        #edit-lessons-list {
+            margin-top: 20px;
+            border-top: 1px solid var(--dark-green);
+            padding-top: 10px;
+        }
+
+        .edit-lesson-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+    </style>
+</head>
+<body>
+
+    <button id="settings-btn" onclick="toggleMode()">⚙ Настроить</button>
+
+    <div id="view-section">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setDay(0)">ПН</button>
+            <button class="tab-btn" onclick="setDay(1)">ВТ</button>
+            <button class="tab-btn" onclick="setDay(2)">СР</button>
+            <button class="tab-btn" onclick="setDay(3)">ЧТ</button>
+            <button class="tab-btn" onclick="setDay(4)">ПТ</button>
+            <button class="tab-btn" onclick="setDay(5)">СБ</button>
+        </div>
+
+        <div id="schedule-list">
+            </div>
+    </div>
+
+    <div id="edit-section">
+        <div class="edit-header">
+            <h2>Редактор</h2>
+        </div>
+
+        <div class="form-group">
+            <label>День недели</label>
+            <select id="lesson-day">
+                <option value="0">Понедельник</option>
+                <option value="1">Вторник</option>
+                <option value="2">Среда</option>
+                <option value="3">Четверг</option>
+                <option value="4">Пятница</option>
+                <option value="5">Суббота</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex-grow: 1;">
+                <label>Предмет (например, Физика)</label>
+                <input type="text" id="lesson-name" placeholder="Высшая магия">
+            </div>
+            <div class="form-group" style="width: 80px;">
+                <label>Каб.</label>
+                <input type="text" id="lesson-room" placeholder="404">
+            </div>
+        </div>
+
+        <button class="main-btn save" onclick="addLesson()">Добавить урок</button>
+
+        <div id="edit-lessons-list">
+            </div>
+
+        <div class="btn-block">
+            <button class="main-btn cancel" onclick="toggleMode()">Закрыть редактор</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App API
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Расширить на весь экран
+        tg.setHeaderColor('#000000'); // Черный цвет заголовка
+
+        // Данные: храним массив массивов (6 дней недели)
+        // Структура: schedule[0] = [{name: 'Матан', room: '101'}, ...]
+        let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [[],[],[],[],[],[]];
+        let currentDayView = 0; // Какой день сейчас смотрим
+        let isEditMode = false;
+
+        // Показываем уроки для текущего дня
+        function renderSchedule() {
+            const listObj = document.getElementById('schedule-list');
+            listObj.innerHTML = '';
+            const dayLessons = schedule[currentDayView];
+
+            if (dayLessons.length === 0) {
+                listObj.innerHTML = '<div class="no-lessons">На этот день уроков нет.<br>Нажми "Настроить", чтобы добавить.</div>';
+                return;
+            }
+
+            // Сортировка по номеру урока (если добавить это поле, пока просто по порядку добавления)
+            dayLessons.forEach((lesson, index) => {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                card.innerHTML = `
+                    <div class="lesson-info">
+                        <span class="lesson-num">Урок ${index + 1}</span>
+                        <span class="lesson-name">${lesson.name}</span>
+                    </div>
+                    <div class="lesson-room">${lesson.room}</div>
+                `;
+                listObj.appendChild(card);
+            });
+        }
+
+        // Рендер списка для удаления в редакторе
+        function renderEditList() {
+            const editListObj = document.getElementById('edit-lessons-list');
+            editListObj.innerHTML = '';
+            
+            // Показываем вообще все уроки, сгруппированные по дням
+            const daysNames = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+            
+            schedule.forEach((dayLessons, dayIndex) => {
+                if (dayLessons.length > 0) {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.style.color = '#003300';
+                    dayHeader.style.marginTop = '10px';
+                    dayHeader.style.fontSize = '12px';
+                    dayHeader.innerText = daysNames[dayIndex];
+                    editListObj.appendChild(dayHeader);
+
+                    dayLessons.forEach((lesson, lessonIndex) => {
+                        const item = document.createElement('div');
+                        item.className = 'edit-lesson-item';
+                        item.innerHTML = `
+                            <span>${lesson.name} (${lesson.room})</span>
+                            <button class="delete-btn" onclick="deleteLesson(${dayIndex}, ${lessonIndex})">[удалить]</button>
+                        `;
+                        editListObj.appendChild(item);
+                    });
+                }
+            });
+        }
+
+        // Переключение дня в просмотре
+        function setDay(dayIndex) {
+            currentDayView = dayIndex;
+            // Обновляем табы
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.className = (idx === dayIndex) ? 'tab-btn active' : 'tab-btn';
+            });
+            renderSchedule();
+        }
+
+        // Добавление урока
+        function addLesson() {
+            const dayIdx = document.getElementById('lesson-day').value;
+            const name = document.getElementById('lesson-name').value.trim();
+            const room = document.getElementById('lesson-room').value.trim();
+
+            if (!name || !room) {
+                tg.showAlert('Заполни и предмет, и кабинет, бро.');
+                return;
+            }
+
+            schedule[dayIdx].push({ name, room });
+            saveData();
+            
+            // Очистить поля
+            document.getElementById('lesson-name').value = '';
+            document.getElementById('lesson-room').value = '';
+            
+            renderEditList();
+            tg.HapticFeedback.notificationOccurred('success'); // Виброотзыв
+        }
+
+        // Удаление урока
+        function deleteLesson(dayIdx, lessonIdx) {
+            tg.showConfirm(`Удалить ${schedule[dayIdx][lessonIdx].name}?`, (confirmed) => {
+                if (confirmed) {
+                    schedule[dayIdx].splice(lessonIdx, 1);
+                    saveData();
+                    renderEditList();
+                }
+            });
+        }
+
+        // Сохранение в память телефона
+        function saveData() {
+            localStorage.setItem('mySchedule', JSON.stringify(schedule));
+        }
+
+        // Переключение между просмотром и редактором
+        function toggleMode() {
+            isEditMode = !isEditMode;
+            const viewSec = document.getElementById('view-section');
+            const editSec = document.getElementById('edit-section');
+            const btn = document.getElementById('settings-btn');
+
+            if (isEditMode) {
+                viewSec.style.display = 'none';
+                editSec.style.display = 'flex';
+                btn.innerText = '🔙 Назад';
+                renderEditList();
+            } else {
+                viewSec.style.display = 'flex';
+                editSec.style.display = 'none';
+                btn.innerText = '⚙ Настроить';
+                renderSchedule(); // Обновить главный экран
+            }
+        }
+
+        // Инициализация при запуске
+        // Ставим текущий день недели по умолчанию (0 - Пн, 6 - Вс)
+        let today = new Date().getDay();
+        currentDayView = (today === 0) ? 0 : today - 1; // Если воскресенье, ставим Пн
+        if (currentDayView > 5) currentDayView = 0; // На всякий случай
+
+        setDay(currentDayView);
+        tg.ready(); // Сообщить ТГ, что мы готовы
+    </script>
+</body>
+</html>
