@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>School Terminal Custom Fixed</title>
+    <title>School Terminal Custom Themes</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -11,7 +11,7 @@
             --main-color: #00ff41;
             --dark-color: #003300;
             --card-bg: #0a0a0a;
-            --hw-text: #ffffff;
+            --hw-text: #888;
         }
 
         html, body {
@@ -23,6 +23,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         body {
@@ -37,7 +38,7 @@
         .control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0; }
         .back-btn {
             background: var(--main-color);
-            color: #000;
+            color: var(--bg-color);
             border: none;
             padding: 15px;
             border-radius: 10px;
@@ -65,15 +66,15 @@
         .active-screen { display: flex; }
 
         /* Дневник */
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--dark-color); flex-shrink: 0; }
-        .tab-btn { background: none; border: none; color: var(--dark-color); font-size: 18px; padding: 10px; font-family: inherit; }
-        .tab-btn.active { color: var(--main-color); border-bottom: 2px solid var(--main-color); }
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; opacity: 0.7; }
+        .tab-btn { background: none; border: none; color: var(--main-color); font-size: 18px; padding: 10px; font-family: inherit; opacity: 0.5; }
+        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--main-color); }
         
         #schedule-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; -webkit-overflow-scrolling: touch; }
-        .lesson-card { background: var(--card-bg); border: 1px solid var(--dark-color); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .lesson-card { background: var(--card-bg); border: 1px solid var(--main-color); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
         .lesson-main { display: flex; justify-content: space-between; align-items: center; }
-        .lesson-room { border: 1px solid var(--main-color); padding: 5px 10px; border-radius: 6px; color: #fff; font-weight: bold; }
-        .hw-input { background: #000; border: 1px solid #1a1a1a; color: var(--hw-text); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 5px; }
+        .lesson-room { border: 1px solid var(--main-color); padding: 5px 10px; border-radius: 6px; font-weight: bold; }
+        .hw-input { background: transparent; border: 1px solid var(--main-color); color: var(--main-color); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 5px; opacity: 0.8; }
 
         /* ГДЗ Список */
         .gdz-list { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-bottom: 30px; }
@@ -90,12 +91,12 @@
         }
 
         /* Настройки темы */
-        .theme-selector { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
-        .theme-opt { padding: 20px; border-radius: 10px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; }
+        .theme-selector { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 20px; }
+        .theme-opt { padding: 15px; border-radius: 10px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; font-size: 14px; }
 
         /* Редактор */
         #diary-edit { flex-grow: 1; overflow-y: auto; padding-bottom: 30px; }
-        .edit-input { background: #0a0a0a; color: var(--main-color); padding: 12px; border: 1px solid var(--dark-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; }
+        .edit-input { background: var(--card-bg); color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; }
 
     </style>
 </head>
@@ -106,14 +107,14 @@
         <div class="menu-grid">
             <button class="hub-btn" onclick="showScreen('diary-screen')">📂 ЩОДЕННИК</button>
             <button class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ</button>
-            <button class="hub-btn" style="border-color: #444; color: #666;" onclick="showScreen('settings-screen')">⚙️ НАЛАШТУВАННЯ</button>
+            <button class="hub-btn" style="opacity: 0.6;" onclick="showScreen('settings-screen')">⚙️ ТЕМИ</button>
         </div>
     </div>
 
     <div id="diary-screen" class="screen">
         <div class="control-panel">
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
-            <button id="edit-toggle-btn" style="background: var(--dark-color); color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button>
+            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button>
         </div>
         
         <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;">
@@ -137,7 +138,7 @@
             </select>
             <input type="text" id="lesson-name" class="edit-input" placeholder="Назва предмету">
             <input type="text" id="lesson-room" class="edit-input" placeholder="Кабінет">
-            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:#000; border:none; font-weight:bold; border-radius:8px; font-family: inherit;">+ ДОДАТИ</button>
+            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:8px; font-family: inherit;">+ ДОДАТИ</button>
             <div id="edit-list" style="margin-top:20px;"></div>
         </div>
     </div>
@@ -158,9 +159,11 @@
         </div>
         <h2 style="text-align:center;">ВИБІР ТЕМИ</h2>
         <div class="theme-selector">
-            <div class="theme-opt" style="border-color: #00ff41; color: #00ff41;" onclick="setTheme('green')">MATRIX GREEN</div>
-            <div class="theme-opt" style="border-color: #0077ff; color: #0077ff;" onclick="setTheme('blue')">CYBER BLUE</div>
-            <div class="theme-opt" style="border-color: #ff0000; color: #ff0000;" onclick="setTheme('red')">ALARM RED</div>
+            <div class="theme-opt" style="border-color: #00ff41; color: #00ff41; background: #000;" onclick="setTheme('green')">MATRIX GREEN</div>
+            <div class="theme-opt" style="border-color: #0077ff; color: #0077ff; background: #000;" onclick="setTheme('blue')">CYBER BLUE</div>
+            <div class="theme-opt" style="border-color: #ff0000; color: #ff0000; background: #000;" onclick="setTheme('red')">ALARM RED</div>
+            <div class="theme-opt" style="border-color: #888888; color: #888888; background: #000;" onclick="setTheme('gray')">DARK GRAY</div>
+            <div class="theme-opt" style="border-color: #000000; color: #000000; background: #ffffff;" onclick="setTheme('light')">LIGHT MODE (WHITE)</div>
         </div>
     </div>
 
@@ -172,15 +175,18 @@
         let currentDayView = 0;
 
         const themes = {
-            green: { main: '#00ff41', dark: '#003300' },
-            blue: { main: '#0077ff', dark: '#001133' },
-            red: { main: '#ff0000', dark: '#330000' }
+            green: { main: '#00ff41', bg: '#000000', card: '#0a0a0a' },
+            blue: { main: '#0077ff', bg: '#000000', card: '#000510' },
+            red: { main: '#ff0000', bg: '#000000', card: '#0a0000' },
+            gray: { main: '#888888', bg: '#000000', card: '#111111' },
+            light: { main: '#000000', bg: '#ffffff', card: '#f0f0f0' }
         };
 
         function setTheme(name) {
             const theme = themes[name];
             document.documentElement.style.setProperty('--main-color', theme.main);
-            document.documentElement.style.setProperty('--dark-color', theme.dark);
+            document.documentElement.style.setProperty('--bg-color', theme.bg);
+            document.documentElement.style.setProperty('--card-bg', theme.card);
             localStorage.setItem('selectedTheme', name);
             tg.HapticFeedback.notificationOccurred('success');
         }
@@ -208,7 +214,7 @@
                 card.className = 'lesson-card';
                 card.innerHTML = `
                     <div class="lesson-main">
-                        <div><small style="color:var(--dark-color)">${i+1} УРОК</small><br><b>${l.name}</b></div>
+                        <div><small style="opacity:0.6">${i+1} УРОК</small><br><b>${l.name}</b></div>
                         <div class="lesson-room">${l.room}</div>
                     </div>
                     <input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">
@@ -260,7 +266,7 @@
             schedule.forEach((day, dIdx) => {
                 day.forEach((l, lIdx) => {
                     const item = document.createElement('div');
-                    item.style = 'display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #111; font-size:14px;';
+                    item.style = 'display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #555; font-size:14px;';
                     item.innerHTML = `<span>${days[dIdx]}: ${l.name}</span><button onclick="deleteLesson(${dIdx},${lIdx})" style="color:red; background:none; border:none; font-family:inherit;">[X]</button>`;
                     list.appendChild(item);
                 });
@@ -279,4 +285,4 @@
         tg.ready();
     </script>
 </body>
-</html>
+    </html>
