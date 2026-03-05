@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>School Terminal Custom</title>
+    <title>School Terminal Custom Fixed</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Базовые цвета (будут меняться через JS) */
         :root {
             --bg-color: #000000;
-            --main-color: #00ff41; /* Дефолтный зеленый */
+            --main-color: #00ff41;
             --dark-color: #003300;
             --card-bg: #0a0a0a;
             --hw-text: #ffffff;
@@ -24,7 +23,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Courier New', Courier, monospace;
-            transition: 0.3s; /* Плавная смена цвета */
         }
 
         body {
@@ -35,21 +33,7 @@
             color: var(--main-color);
         }
 
-        /* Кнопки меню */
-        .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; }
-        .hub-btn {
-            background: var(--card-bg);
-            border: 2px solid var(--main-color);
-            color: var(--main-color);
-            padding: 30px 20px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 15px;
-            font-family: inherit;
-            cursor: pointer;
-        }
-
-        /* Панель управления */
+        /* Навигация */
         .control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0; }
         .back-btn {
             background: var(--main-color);
@@ -60,30 +44,28 @@
             flex-grow: 1;
             font-weight: bold;
             font-family: inherit;
-        }
-
-        /* Темы (кнопки выбора) */
-        .theme-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .theme-opt {
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid;
-            font-weight: bold;
-            text-align: center;
             cursor: pointer;
         }
 
+        /* Главное меню */
+        .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; }
+        .hub-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--main-color);
+            color: var(--main-color);
+            padding: 30px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 15px;
+            font-family: inherit;
+        }
+
         /* Секции */
-        .screen { display: none; flex-direction: column; height: 100%; }
+        .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .active-screen { display: flex; }
 
         /* Дневник */
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--dark-color); }
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--dark-color); flex-shrink: 0; }
         .tab-btn { background: none; border: none; color: var(--dark-color); font-size: 18px; padding: 10px; font-family: inherit; }
         .tab-btn.active { color: var(--main-color); border-bottom: 2px solid var(--main-color); }
         
@@ -93,11 +75,28 @@
         .lesson-room { border: 1px solid var(--main-color); padding: 5px 10px; border-radius: 6px; color: #fff; font-weight: bold; }
         .hw-input { background: #000; border: 1px solid #1a1a1a; color: var(--hw-text); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 5px; }
 
+        /* ГДЗ Список */
+        .gdz-list { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-bottom: 30px; }
+        .gdz-link { 
+            background: var(--card-bg); 
+            color: var(--main-color); 
+            padding: 25px; 
+            border-radius: 15px; 
+            text-decoration: none; 
+            text-align: center; 
+            border: 1px solid var(--main-color); 
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Настройки темы */
+        .theme-selector { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        .theme-opt { padding: 20px; border-radius: 10px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; }
+
         /* Редактор */
+        #diary-edit { flex-grow: 1; overflow-y: auto; padding-bottom: 30px; }
         .edit-input { background: #0a0a0a; color: var(--main-color); padding: 12px; border: 1px solid var(--dark-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; }
 
-        /* ГДЗ */
-        .gdz-link { background: var(--card-bg); color: var(--main-color); padding: 20px; border-radius: 15px; text-decoration: none; text-align: center; border: 1px solid var(--main-color); margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -107,7 +106,7 @@
         <div class="menu-grid">
             <button class="hub-btn" onclick="showScreen('diary-screen')">📂 ЩОДЕННИК</button>
             <button class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ</button>
-            <button class="hub-btn" style="border-color: #555; color: #888;" onclick="showScreen('settings-screen')">⚙️ НАЛАШТУВАННЯ</button>
+            <button class="hub-btn" style="border-color: #444; color: #666;" onclick="showScreen('settings-screen')">⚙️ НАЛАШТУВАННЯ</button>
         </div>
     </div>
 
@@ -117,7 +116,7 @@
             <button id="edit-toggle-btn" style="background: var(--dark-color); color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button>
         </div>
         
-        <div id="diary-view" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+        <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;">
             <div class="tabs">
                 <button class="tab-btn active" onclick="setDay(0)">ПН</button>
                 <button class="tab-btn" onclick="setDay(1)">ВТ</button>
@@ -128,7 +127,7 @@
             <div id="schedule-list"></div>
         </div>
 
-        <div id="diary-edit" style="display:none; flex-direction: column; overflow-y: auto;">
+        <div id="diary-edit" style="display:none; flex-direction: column;">
             <select id="lesson-day" class="edit-input">
                 <option value="0">Понеділок</option>
                 <option value="1">Вівторок</option>
@@ -144,7 +143,9 @@
     </div>
 
     <div id="gdz-screen" class="screen">
-        <button class="back-btn" style="margin-bottom: 20px; flex-shrink: 0;" onclick="showScreen('main-menu')">← МЕНЮ</button>
+        <div class="control-panel">
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
+        </div>
         <div class="gdz-list">
             <a href="https://vshkole.com" target="_blank" class="gdz-link">VSHKOLE.COM</a>
             <a href="https://gdzonline.net/882-workbook-6-kosta.html" target="_blank" class="gdz-link">АНГЛ (WORKBOOK)</a>
@@ -153,7 +154,9 @@
     </div>
 
     <div id="settings-screen" class="screen">
-        <button class="back-btn" style="margin-bottom: 20px;" onclick="showScreen('main-menu')">← МЕНЮ</button>
+        <div class="control-panel">
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
+        </div>
         <h2 style="text-align:center;">ВИБІР ТЕМИ</h2>
         <div class="theme-selector">
             <div class="theme-opt" style="border-color: #00ff41; color: #00ff41;" onclick="setTheme('green')">MATRIX GREEN</div>
@@ -169,7 +172,6 @@
         let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [[],[],[],[],[]];
         let currentDayView = 0;
 
-        // --- ЛОГИКА ТЕМ ---
         const themes = {
             green: { main: '#00ff41', dark: '#003300' },
             blue: { main: '#0077ff', dark: '#001133' },
@@ -184,11 +186,9 @@
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // Загрузка сохраненной темы
         const savedTheme = localStorage.getItem('selectedTheme') || 'green';
         setTheme(savedTheme);
 
-        // --- НАВИГАЦИЯ ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById(id).classList.add('active-screen');
@@ -199,13 +199,11 @@
             }
         }
 
-        // --- ДНЕВНИК ---
         function renderSchedule() {
             const list = document.getElementById('schedule-list');
             list.innerHTML = '';
             const lessons = schedule[currentDayView];
             if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">ПУСТО</div>'; return; }
-            
             lessons.forEach((l, i) => {
                 const card = document.createElement('div');
                 card.className = 'lesson-card';
@@ -276,11 +274,10 @@
             renderEditList();
         }
 
-        // Старт
         let today = new Date().getDay();
         currentDayView = (today === 0 || today === 6) ? 0 : today - 1;
         setDay(currentDayView);
         tg.ready();
     </script>
 </body>
-                </html>
+</html>
