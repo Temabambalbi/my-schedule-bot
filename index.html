@@ -1,205 +1,248 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>School Hub Cloud</title>
-    <link rel="apple-touch-icon" href="https://img.icons8.com/nolan/512/terminal.png">
+<!DOCTYPE html> 
+<html lang="uk"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> 
+    <title>School Terminal</title> 
+
     <meta name="apple-mobile-web-app-capable" content="yes">
-    
-    <style>
-        :root { --bg-color: #000; --main-color: #00ff41; --card-bg: #0d0d0d; }
-        body { background: var(--bg-color); color: var(--main-color); font-family: 'Courier New', monospace; padding: 15px; margin: 0; }
-        .screen { display: none; flex-direction: column; height: 100vh; }
-        .active-screen { display: flex; }
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/nolan/512/terminal.png">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script> 
+    <style> 
+        :root { 
+            --bg-color: #000000; 
+            --main-color: #00ff41; 
+            --dark-color: #003300; 
+            --card-bg: #0a0a0a; 
+            --hw-text: #888; 
+        } 
+
+        html, body { 
+            position: fixed; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Courier New', Courier, monospace; 
+            transition: 0.3s; 
+        } 
+
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            padding: 15px; 
+            /* Отступ сверху для айфонов с "челкой" */
+            padding-top: calc(env(safe-area-inset-top) + 10px); 
+            box-sizing: border-box; 
+            color: var(--main-color); 
+        } 
+
+        .control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0; } 
+        .back-btn { background: var(--main-color); color: var(--bg-color); border: none; padding: 15px; border-radius: 10px; flex-grow: 1; font-weight: bold; font-family: inherit; cursor: pointer; } 
+
+        .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; } 
+        .hub-btn { background: var(--card-bg); border: 2px solid var(--main-color); color: var(--main-color); padding: 30px 20px; font-size: 20px; font-weight: bold; border-radius: 15px; font-family: inherit; cursor: pointer; } 
+
+        .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; } 
+        .active-screen { display: flex; } 
+
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; opacity: 0.7; } 
+        .tab-btn { background: none; border: none; color: var(--main-color); font-size: 18px; padding: 10px; font-family: inherit; opacity: 0.5; } 
+        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--main-color); } 
         
-        /* Кнопки */
-        .hub-btn { background: var(--card-bg); border: 2px solid var(--main-color); color: var(--main-color); padding: 20px; margin: 10px 0; border-radius: 12px; font-weight: bold; font-family: inherit; width: 100%; cursor: pointer; text-transform: uppercase; }
-        .hub-btn:active { background: var(--main-color); color: #000; }
+        #schedule-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; -webkit-overflow-scrolling: touch; } 
+        .lesson-card { background: var(--card-bg); border: 1px solid var(--main-color); border-radius: 12px; padding: 15px; margin-bottom: 12px; } 
+        .lesson-main { display: flex; justify-content: space-between; align-items: center; } 
+        .lesson-room { border: 1px solid var(--main-color); padding: 5px 10px; border-radius: 6px; font-weight: bold; } 
+        .hw-input { background: transparent; border: 1px solid var(--main-color); color: var(--main-color); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 5px; opacity: 0.8; } 
+
+        .gdz-list { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-bottom: 30px; } 
+        .gdz-link { background: var(--card-bg); color: var(--main-color); padding: 25px; border-radius: 15px; text-decoration: none; text-align: center; border: 1px solid var(--main-color); font-weight: bold; font-size: 18px; } 
+
+        .theme-selector { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 20px; } 
+        .theme-opt { padding: 15px; border-radius: 10px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; font-size: 14px; } 
+
+        #diary-edit { flex-grow: 1; overflow-y: auto; padding-bottom: 30px; } 
+        .edit-input { background: var(--card-bg); color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; } 
+    </style> 
+</head> 
+<body> 
+
+    <div id="main-menu" class="screen active-screen"> 
+        <h1 style="text-align: center; letter-spacing: 5px;">SYSTEM</h1> 
+        <div class="menu-grid"> 
+            <button class="hub-btn" onclick="showScreen('diary-screen')">📂 ЩОДЕННИК</button> 
+            <button class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ</button> 
+            <button class="hub-btn" style="opacity: 0.6;" onclick="showScreen('settings-screen')">⚙️ ТЕМИ</button> 
+        </div> 
+    </div> 
+
+    <div id="diary-screen" class="screen"> 
+        <div class="control-panel"> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
+            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button> 
+        </div> 
         
-        /* Карточки уроков */
-        .lesson-card { border: 1px solid var(--main-color); padding: 15px; margin-bottom: 12px; border-radius: 12px; background: rgba(0, 255, 65, 0.05); }
-        .hw-input { background: transparent; border: 1px solid #333; color: #fff; width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
-        /* Табы дней */
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 15px; border-bottom: 1px solid #222; }
-        .tab-btn { background: none; border: none; color: var(--main-color); padding: 10px; font-family: inherit; opacity: 0.4; font-size: 16px; }
-        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--main-color); }
+        <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;"> 
+            <div class="tabs"> 
+                <button class="tab-btn active" onclick="setDay(0)">ПН</button> 
+                <button class="tab-btn" onclick="setDay(1)">ВТ</button> 
+                <button class="tab-btn" onclick="setDay(2)">СР</button> 
+                <button class="tab-btn" onclick="setDay(3)">ЧТ</button> 
+                <button class="tab-btn" onclick="setDay(4)">ПТ</button> 
+            </div> 
+            <div id="schedule-list"></div> 
+        </div> 
 
-        /* Загрузка */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; justify-content: center; align-items: center; z-index: 1000; letter-spacing: 5px; }
-    </style>
-</head>
-<body>
+        <div id="diary-edit" style="display:none; flex-direction: column;"> 
+            <select id="lesson-day" class="edit-input"> 
+                <option value="0">Понеділок</option> 
+                <option value="1">Вівторок</option> 
+                <option value="2">Середа</option> 
+                <option value="3">Четвер</option> 
+                <option value="4">П'ятниця</option> 
+            </select> 
+            <input type="text" id="lesson-name" class="edit-input" placeholder="Назва предмету"> 
+            <input type="text" id="lesson-room" class="edit-input" placeholder="Кабінет"> 
+            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:8px; font-family: inherit;">+ ДОДАТИ</button> 
+            <div id="edit-list" style="margin-top:20px;"></div> 
+        </div> 
+    </div> 
 
-    <div id="loader">CONNECTING...</div>
+    <div id="gdz-screen" class="screen"> 
+        <div class="control-panel"> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
+        </div> 
+        <div class="gdz-list"> 
+            <a href="https://vshkole.com" target="_blank" class="gdz-link">VSHKOLE.COM</a> 
+            <a href="https://gdzonline.net" target="_blank" class="gdz-link">GDZONLINE.NET</a> 
+        </div> 
+    </div> 
 
-    <div id="auth-screen" class="screen active-screen" style="justify-content: center;">
-        <h1 style="text-align: center; letter-spacing: 3px;">TERMINAL LOGIN</h1>
-        <p style="text-align: center; opacity: 0.6; font-size: 14px;">Введіть свій персональний ID,<br>щоб отримати доступ до даних:</p>
-        <input type="text" id="user-id-input" style="width:100%; padding:15px; background:#111; color:var(--main-color); border:1px solid var(--main-color); border-radius:10px; text-align:center; box-sizing:border-box;" placeholder="ваш_нік_англійською">
-        <button class="hub-btn" onclick="login()">УВІЙТИ</button>
-    </div>
+    <div id="settings-screen" class="screen"> 
+        <div class="control-panel"> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
+        </div> 
+        <h2 style="text-align:center;">ВИБІР ТЕМИ</h2> 
+        <div class="theme-selector"> 
+            <div class="theme-opt" style="border-color: #00ff41; color: #00ff41; background: #000;" onclick="setTheme('green')">MATRIX GREEN</div> 
+            <div class="theme-opt" style="border-color: #0077ff; color: #0077ff; background: #000;" onclick="setTheme('blue')">CYBER BLUE</div> 
+            <div class="theme-opt" style="border-color: #ff0000; color: #ff0000; background: #000;" onclick="setTheme('red')">ALARM RED</div> 
+            <div class="theme-opt" style="border-color: #888888; color: #888888; background: #000;" onclick="setTheme('gray')">DARK GRAY</div> 
+            <div class="theme-opt" style="border-color: #000000; color: #000000; background: #ffffff;" onclick="setTheme('light')">LIGHT MODE</div> 
+        </div> 
+    </div> 
 
-    <div id="main-menu" class="screen">
-        <div style="text-align: right; font-size: 12px; opacity: 0.5;">USER: <span id="display-id"></span></div>
-        <h1 style="text-align: center; margin: 40px 0;">SYSTEM HUB</h1>
-        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-            <button class="hub-btn" onclick="showScreen('diary-screen')">📂 МІЙ ЩОДЕННИК</button>
-            <button class="hub-btn" style="border-color: #444; color: #444;" onclick="logout()">🔌 ВИЙТИ</button>
-        </div>
-    </div>
+    <script> 
+        const tg = window.Telegram.WebApp; 
+        tg.expand(); 
 
-    <div id="diary-screen" class="screen">
-        <div style="display:flex; gap:10px; margin-bottom: 15px;">
-            <button onclick="showScreen('main-menu')" style="background:var(--main-color); color:#000; border:none; padding:12px; border-radius:8px; font-weight:bold;">←</button>
-            <button onclick="toggleEdit()" id="edit-toggle-btn" style="flex-grow:1; background:transparent; border:1px solid var(--main-color); color:var(--main-color); border-radius:8px; font-family:inherit;">РЕДАГУВАТИ</button>
-        </div>
+        // ВСЁ ХРАНИТСЯ ТОЛЬКО В localStorage (ПАМЯТЬ БРАУЗЕРА)
+        let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [[],[],[],[],[]]; 
+        let currentDayView = 0; 
 
-        <div id="diary-view">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="setDay(0)">ПН</button>
-                <button class="tab-btn" onclick="setDay(1)">ВТ</button>
-                <button class="tab-btn" onclick="setDay(2)">СР</button>
-                <button class="tab-btn" onclick="setDay(3)">ЧТ</button>
-                <button class="tab-btn" onclick="setDay(4)">ПТ</button>
-            </div>
-            <div id="schedule-list" style="overflow-y:auto; flex-grow:1;"></div>
-        </div>
+        const themes = { 
+            green: { main: '#00ff41', bg: '#000000', card: '#0a0a0a' }, 
+            blue: { main: '#0077ff', bg: '#000000', card: '#000510' }, 
+            red: { main: '#ff0000', bg: '#000000', card: '#0a0000' }, 
+            gray: { main: '#888888', bg: '#000000', card: '#111111' }, 
+            light: { main: '#000000', bg: '#ffffff', card: '#f0f0f0' } 
+        }; 
 
-        <div id="diary-edit" style="display:none; overflow-y:auto;">
-            <select id="lesson-day" style="width:100%; padding:12px; background:#111; color:var(--main-color); border:1px solid var(--main-color); border-radius:8px; margin-bottom:10px;">
-                <option value="0">Понеділок</option><option value="1">Вівторок</option>
-                <option value="2">Середа</option><option value="3">Четвер</option><option value="4">П'ятниця</option>
-            </select>
-            <input type="text" id="lesson-name" style="width:100%; padding:12px; background:#111; color:var(--main-color); border:1px solid var(--main-color); border-radius:8px; margin-bottom:10px; box-sizing:border-box;" placeholder="Назва предмету">
-            <input type="text" id="lesson-room" style="width:100%; padding:12px; background:#111; color:var(--main-color); border:1px solid var(--main-color); border-radius:8px; margin-bottom:10px; box-sizing:border-box;" placeholder="Кабінет">
-            <button class="hub-btn" onclick="addLesson()">+ ДОДАТИ</button>
-            <div id="edit-list" style="margin-top:20px;"></div>
-        </div>
-    </div>
+        function setTheme(name) { 
+            const theme = themes[name]; 
+            document.documentElement.style.setProperty('--main-color', theme.main); 
+            document.documentElement.style.setProperty('--bg-color', theme.bg); 
+            document.documentElement.style.setProperty('--card-bg', theme.card); 
+            localStorage.setItem('selectedTheme', name); 
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); 
+        } 
 
-    <script>
-        const BUCKET_URL = "https://kvdb.io/4pYx7pA1Yv9sUu8gGzGzGz/"; 
-        
-        let userId = localStorage.getItem('school_user_id');
-        let schedule = [[],[],[],[],[]];
-        let currentDay = 0;
+        const savedTheme = localStorage.getItem('selectedTheme') || 'green'; 
+        setTheme(savedTheme); 
 
-        async function login() {
-            const id = document.getElementById('user-id-input').value.trim().toLowerCase();
-            if(id.length < 3) return alert("Нік занадто короткий!");
-            
-            userId = id;
-            localStorage.setItem('school_user_id', id);
-            await loadFromCloud();
-            showScreen('main-menu');
-        }
+        function showScreen(id) { 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen')); 
+            document.getElementById(id).classList.add('active-screen'); 
+            if(id === 'diary-screen') renderSchedule(); 
+        } 
 
-        function logout() {
-            localStorage.removeItem('school_user_id');
-            location.reload();
-        }
+        function renderSchedule() { 
+            const list = document.getElementById('schedule-list'); 
+            list.innerHTML = ''; 
+            const lessons = schedule[currentDayView]; 
+            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">ПУСТО</div>'; return; } 
+            lessons.forEach((l, i) => { 
+                const card = document.createElement('div'); 
+                card.className = 'lesson-card'; 
+                card.innerHTML = `<div class="lesson-main"><div><small style="opacity:0.6">${i+1} УРОК</small><br><b>${l.name}</b></div><div class="lesson-room">${l.room}</div></div><input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">`; 
+                list.appendChild(card); 
+            }); 
+        } 
 
-        async function loadFromCloud() {
-            document.getElementById('loader').style.display = 'flex';
-            try {
-                const response = await fetch(BUCKET_URL + userId);
-                if (response.ok) {
-                    schedule = await response.json();
-                } else {
-                    schedule = [[],[],[],[],[]]; // Новый юзер
-                }
-            } catch (e) { schedule = [[],[],[],[],[]]; }
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('display-id').innerText = userId;
-            renderSchedule();
-        }
+        function saveHW(d, i, v) { 
+            schedule[d][i].hw = v; 
+            localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
+        } 
 
-        async function saveToCloud() {
-            fetch(BUCKET_URL + userId, {
-                method: 'POST',
-                body: JSON.stringify(schedule)
-            });
-        }
+        function setDay(i) { 
+            currentDayView = i; 
+            document.querySelectorAll('.tab-btn').forEach((b, idx) => b.className = idx === i ? 'tab-btn active' : 'tab-btn'); 
+            renderSchedule(); 
+        } 
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById(id).classList.add('active-screen');
-        }
+        function toggleEdit() { 
+            const v = document.getElementById('diary-view'); 
+            const e = document.getElementById('diary-edit'); 
+            const btn = document.getElementById('edit-toggle-btn'); 
+            if(v.style.display === 'none') { v.style.display = 'flex'; e.style.display = 'none'; btn.innerText = 'РЕД.'; renderSchedule(); } 
+            else { v.style.display = 'none'; e.style.display = 'flex'; btn.innerText = 'ОК'; renderEditList(); } 
+        } 
 
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list');
-            list.innerHTML = '';
-            const lessons = schedule[currentDay] || [];
-            if(lessons.length === 0) list.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:50px;">РОЗКЛАД ПОРОЖНІЙ</p>';
-            lessons.forEach((l, i) => {
-                const card = document.createElement('div');
-                card.className = 'lesson-card';
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <b>${i+1}. ${l.name}</b>
-                        <span style="font-size:12px; border:1px solid; padding:2px 6px; border-radius:4px;">${l.room}</span>
-                    </div>
-                    <input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="updateHW(${i}, this.value)">
-                `;
-                list.appendChild(card);
-            });
-        }
+        function addLesson() { 
+            const d = document.getElementById('lesson-day').value; 
+            const n = document.getElementById('lesson-name').value.trim(); 
+            const r = document.getElementById('lesson-room').value.trim(); 
+            if(n && r) { 
+                schedule[d].push({name: n, room: r, hw: ''}); 
+                localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
+                document.getElementById('lesson-name').value = ''; 
+                document.getElementById('lesson-room').value = ''; 
+                renderEditList(); 
+            } 
+        } 
 
-        function updateHW(idx, val) {
-            schedule[currentDay][idx].hw = val;
-            saveToCloud();
-        }
+        function renderEditList() { 
+            const list = document.getElementById('edit-list'); 
+            list.innerHTML = ''; 
+            const days = ['ПН','ВТ','СР','ЧТ','ПТ']; 
+            schedule.forEach((day, dIdx) => { 
+                day.forEach((l, lIdx) => { 
+                    const item = document.createElement('div'); 
+                    item.style = 'display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #555; font-size:14px;'; 
+                    item.innerHTML = `<span>${days[dIdx]}: ${l.name}</span><button onclick="deleteLesson(${dIdx},${lIdx})" style="color:red; background:none; border:none; font-family:inherit;">[X]</button>`; 
+                    list.appendChild(item); 
+                }); 
+            }); 
+        } 
 
-        function setDay(i) {
-            currentDay = i;
-            document.querySelectorAll('.tab-btn').forEach((b, idx) => b.className = idx === i ? 'tab-btn active' : 'tab-btn');
-            renderSchedule();
-        }
+        function deleteLesson(d, l) { 
+            schedule[d].splice(l, 1); 
+            localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
+            renderEditList(); 
+        } 
 
-        function toggleEdit() {
-            const v = document.getElementById('diary-view');
-            const e = document.getElementById('diary-edit');
-            const btn = document.getElementById('edit-toggle-btn');
-            if(v.style.display === 'none') { v.style.display = 'block'; e.style.display = 'none'; btn.innerText = 'РЕДАКТУВАТИ'; renderSchedule(); }
-            else { v.style.display = 'none'; e.style.display = 'block'; btn.innerText = 'ГОТОВО'; renderEditList(); }
-        }
-
-        function addLesson() {
-            const d = document.getElementById('lesson-day').value;
-            const n = document.getElementById('lesson-name').value;
-            const r = document.getElementById('lesson-room').value;
-            if(n) {
-                schedule[d].push({name: n, room: r, hw: ''});
-                saveToCloud();
-                renderEditList();
-            }
-        }
-
-        function renderEditList() {
-            const list = document.getElementById('edit-list');
-            list.innerHTML = '';
-            const d = document.getElementById('lesson-day').value;
-            schedule[d].forEach((l, i) => {
-                const item = document.createElement('div');
-                item.style = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;";
-                item.innerHTML = `<span>${l.name}</span><button onclick="deleteLesson(${d},${i})" style="color:red; background:none; border:none; font-family:inherit;">[X]</button>`;
-                list.appendChild(item);
-            });
-        }
-
-        function deleteLesson(d, i) {
-            schedule[d].splice(i, 1);
-            saveToCloud();
-            renderEditList();
-        }
-
-        // Проверка при запуске
-        if(userId) {
-            loadFromCloud();
-            showScreen('main-menu');
-        }
-    </script>
-</body>
+        // АВТО ОПРЕДЕЛЕНИЕ ТЕКУЩЕГО ДНЯ ПРИ ЗАПУСКЕ
+        let today = new Date().getDay(); 
+        currentDayView = (today === 0 || today === 6) ? 0 : today - 1; 
+        setDay(currentDayView); 
+        tg.ready(); 
+    </script> 
+</body> 
 </html>
