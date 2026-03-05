@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>School Terminal v5.0 Final</title>
+    <title>Terminal v6.0 Hack Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -25,12 +25,11 @@
         .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .active-screen { display: flex; }
 
-        /* Кнопки и панель */
         .control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0; }
         .back-btn {
             background: var(--main-color); color: var(--bg-color);
             border: none; padding: 15px; border-radius: 12px;
-            flex-grow: 1; font-weight: bold; font-family: inherit; cursor: pointer;
+            flex-grow: 1; font-weight: bold; font-family: inherit;
         }
 
         .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; }
@@ -38,123 +37,104 @@
             background: var(--card-bg); border: 2px solid var(--main-color);
             color: var(--main-color); padding: 25px 20px;
             font-size: 18px; font-weight: bold; border-radius: 15px; font-family: inherit;
-            text-align: center; cursor: pointer; text-transform: uppercase;
+            text-align: center; cursor: pointer;
         }
 
-        /* Особая кнопка для E-School */
-        .es-btn { border-color: #0077ff; color: #0077ff; box-shadow: 0 0 10px rgba(0, 119, 255, 0.2); }
+        /* Блок синхронизации */
+        .sync-box {
+            border: 1px dashed var(--main-color); padding: 15px;
+            border-radius: 12px; margin-top: 20px;
+        }
 
-        /* Дневник */
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; }
-        .tab-btn { background: none; border: none; color: var(--main-color); font-size: 16px; padding: 10px; font-family: inherit; opacity: 0.4; }
-        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--main-color); }
-        
-        #schedule-list { flex-grow: 1; overflow-y: auto; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
         .lesson-card { background: var(--card-bg); border: 1px solid var(--main-color); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .lesson-main { display: flex; justify-content: space-between; align-items: center; }
-        .lesson-room { border: 1px solid var(--main-color); padding: 4px 8px; border-radius: 6px; font-size: 13px; }
-        .hw-input { background: transparent; border: 1px solid var(--main-color); color: var(--text-color); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 6px; font-size: 13px; }
-
-        /* Редактор */
-        .edit-input { background: var(--card-bg); color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; }
+        .hw-input { background: transparent; border: 1px solid var(--main-color); color: var(--text-color); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 6px; }
+        input { background: #111; border: 1px solid var(--main-color); color: var(--main-color); padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
     </style>
 </head>
 <body>
 
     <div id="main-menu" class="screen active-screen">
-        <h1 style="text-align: center; letter-spacing: 5px; margin-bottom: 20px;">SYSTEM HUB</h1>
+        <h1 style="text-align: center; letter-spacing: 5px;">TERMINAL HUB</h1>
         <div class="menu-grid">
             <div class="hub-btn" onclick="showScreen('diary-screen')">📂 МІЙ ЩОДЕННИК</div>
-            
-            <div class="hub-btn es-btn" onclick="openEschool()">🔐 ВХІД E-SCHOOL</div>
-            
-            <div class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ</div>
-            <div class="hub-btn" style="opacity: 0.6; font-size: 14px;" onclick="showScreen('settings-screen')">⚙️ ТЕМИ ТА СТИЛЬ</div>
+            <div class="hub-btn" style="border-color: #0077ff; color: #0077ff;" onclick="showScreen('sync-screen')">⚡ СИНХРОНІЗАЦІЯ ЭШ</div>
+            <div class="hub-btn" style="opacity: 0.6; font-size: 14px;" onclick="showScreen('settings-screen')">⚙️ ТЕМИ</div>
         </div>
+    </div>
+
+    <div id="sync-screen" class="screen">
+        <div class="control-panel">
+            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
+        </div>
+        <div class="sync-box">
+            <h3 style="margin-top:0;">E-SCHOOL INTERCEPT</h3>
+            <input type="text" id="es-login" placeholder="Логін">
+            <input type="password" id="es-pass" placeholder="Пароль">
+            <button class="hub-btn" style="width:100%; padding:15px;" onclick="runIntercept()">ЗАПУСТИТИ ПЕРЕХВАТ</button>
+        </div>
+        <p id="sync-status" style="text-align:center; font-size:12px; margin-top:20px; color: #888;">Очікування команди...</p>
     </div>
 
     <div id="diary-screen" class="screen">
         <div class="control-panel">
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
-            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px; font-family: inherit;" onclick="toggleEdit()">РЕД.</button>
         </div>
-        
-        <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="setDay(0)">ПН</button>
-                <button class="tab-btn" onclick="setDay(1)">ВТ</button>
-                <button class="tab-btn" onclick="setDay(2)">СР</button>
-                <button class="tab-btn" onclick="setDay(3)">ЧТ</button>
-                <button class="tab-btn" onclick="setDay(4)">ПТ</button>
-            </div>
-            <div id="schedule-list"></div>
-        </div>
-
-        <div id="diary-edit" style="display:none; flex-direction: column; overflow-y: auto;">
-            <select id="lesson-day" class="edit-input">
-                <option value="0">Понеділок</option>
-                <option value="1">Вівторок</option>
-                <option value="2">Середа</option>
-                <option value="3">Четвер</option>
-                <option value="4">П'ятниця</option>
-            </select>
-            <input type="text" id="lesson-name" class="edit-input" placeholder="Назва предмету">
-            <input type="text" id="lesson-room" class="edit-input" placeholder="Кабінет">
-            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:10px; font-family: inherit;">+ ДОДАТИ УРОК</button>
-            <div id="edit-list" style="margin-top:20px; padding-bottom: 80px;"></div>
-        </div>
-    </div>
-
-    <div id="gdz-screen" class="screen">
-        <div class="control-panel">
-            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
-        </div>
-        <div class="menu-grid">
-            <div class="hub-btn" onclick="tg.openLink('https://vshkole.com')">VSHKOLE.COM</div>
-            <div class="hub-btn" onclick="tg.openLink('https://gdzonline.net')">GDZONLINE.NET</div>
-        </div>
+        <div id="schedule-list" style="overflow-y: auto;"></div>
     </div>
 
     <div id="settings-screen" class="screen">
         <div class="control-panel">
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            <div class="hub-btn" style="border-color:#00ff41; color:#00ff41;" onclick="setTheme('green')">MATRIX GREEN</div>
-            <div class="hub-btn" style="border-color:#0077ff; color:#0077ff;" onclick="setTheme('blue')">CYBER BLUE</div>
-            <div class="hub-btn" style="border-color:#ff0000; color:#ff0000;" onclick="setTheme('red')">ALARM RED</div>
-            <div class="hub-btn" style="border-color:#888; color:#888;" onclick="setTheme('gray')">DARK GRAY</div>
-            <div class="hub-btn" style="border-color:#000; color:#000; background:#fff;" onclick="setTheme('light')">LIGHT MODE</div>
-        </div>
+        <div class="hub-btn" style="border-color:#00ff41; color:#00ff41; margin-bottom:10px;" onclick="setTheme('green')">MATRIX GREEN</div>
+        <div class="hub-btn" style="border-color:#000; color:#000; background:#fff;" onclick="setTheme('light')">LIGHT MODE</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [[],[],[],[],[]];
-        let currentDayView = 0;
+        // Тут хранится наше расписание
+        let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [];
 
-        const themes = {
-            green: { main: '#00ff41', bg: '#000000', card: '#0a0a0a', text: '#00ff41' },
-            blue: { main: '#0077ff', bg: '#000000', card: '#000815', text: '#0077ff' },
-            red: { main: '#ff0000', bg: '#000000', card: '#0a0000', text: '#ff0000' },
-            gray: { main: '#888', bg: '#000000', card: '#111', text: '#888' },
-            light: { main: '#000', bg: '#fff', card: '#f2f2f2', text: '#000' }
-        };
+        // --- ФУНКЦИЯ СВЯЗИ С МАЛИНКОЙ ---
+        async function runIntercept() {
+            const login = document.getElementById('es-login').value;
+            const pass = document.getElementById('es-pass').value;
+            const status = document.getElementById('sync-status');
+            
+            // !!! СЮДА ВСТАВЬ IP СВОЕЙ МАЛИНКИ ИЛИ ССЫЛКУ NGROK !!!
+            const RASPBERRY_URL = "http://ТВОЙ_АЙПИ:5000/sync"; 
 
-        function setTheme(name) {
-            const t = themes[name];
-            document.documentElement.style.setProperty('--main-color', t.main);
-            document.documentElement.style.setProperty('--bg-color', t.bg);
-            document.documentElement.style.setProperty('--card-bg', t.card);
-            document.documentElement.style.setProperty('--text-color', t.text);
-            localStorage.setItem('selectedTheme', name);
+            if(!login || !pass) { alert("Введи дані!"); return; }
+
+            status.innerText = "З'ЄДНАННЯ З МАЛИНКОЮ...";
             tg.HapticFeedback.impactOccurred('medium');
-        }
 
-        const savedTheme = localStorage.getItem('selectedTheme') || 'green';
-        setTheme(savedTheme);
+            try {
+                const response = await fetch(RASPBERRY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login: login, password: pass })
+                });
+
+                const result = await response.json();
+
+                if(result.status === "success") {
+                    status.innerText = "ДАНІ ПЕРЕХОПЛЕНІ! ✅";
+                    schedule = result.data; // Записываем данные из ЭШ
+                    localStorage.setItem('mySchedule', JSON.stringify(schedule));
+                    tg.HapticFeedback.notificationOccurred('success');
+                    setTimeout(() => showScreen('diary-screen'), 1500);
+                } else {
+                    status.innerText = "ПОМИЛКА: " + result.message;
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+            } catch (err) {
+                status.innerText = "МАЛИНКА НЕ ВІДПОВІДАЄ ❌";
+                console.error(err);
+            }
+        }
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
@@ -162,90 +142,30 @@
             if(id === 'diary-screen') renderSchedule();
         }
 
-        function openEschool() {
-            // Открываем через встроенный браузер Telegram, чтобы сайт не просил скачать приложение
-            tg.openLink('https://eschool-ua.com/login');
-        }
-
         function renderSchedule() {
             const list = document.getElementById('schedule-list');
             list.innerHTML = '';
-            const lessons = schedule[currentDayView];
-            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:40px;opacity:0.3;">РОЗКЛАД ПОРОЖНІЙ</div>'; return; }
-            lessons.forEach((l, i) => {
+            schedule.forEach((l, i) => {
                 const card = document.createElement('div');
                 card.className = 'lesson-card';
-                card.innerHTML = `
-                    <div class="lesson-main">
-                        <div><small style="opacity:0.5">${i+1} УРОК</small><br><b>${l.name}</b></div>
-                        <div class="lesson-room">каб. ${l.room}</div>
-                    </div>
-                    <input type="text" class="hw-input" placeholder="Домашнє завдання..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">
-                `;
+                card.innerHTML = `<b>${l.name}</b><br><small>ДЗ: ${l.hw || 'Немає'}</small>`;
                 list.appendChild(card);
             });
         }
 
-        function saveHW(d, i, v) {
-            schedule[d][i].hw = v;
-            localStorage.setItem('mySchedule', JSON.stringify(schedule));
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        function setDay(i) {
-            currentDayView = i;
-            document.querySelectorAll('.tab-btn').forEach((b, idx) => b.className = idx === i ? 'tab-btn active' : 'tab-btn');
-            renderSchedule();
-        }
-
-        function toggleEdit() {
-            const v = document.getElementById('diary-view');
-            const e = document.getElementById('diary-edit');
-            const btn = document.getElementById('edit-toggle-btn');
-            if(v.style.display === 'none') {
-                v.style.display = 'flex'; e.style.display = 'none'; btn.innerText = 'РЕД.'; renderSchedule();
+        function setTheme(name) {
+            if(name === 'light') {
+                document.documentElement.style.setProperty('--bg-color', '#ffffff');
+                document.documentElement.style.setProperty('--main-color', '#000000');
+                document.documentElement.style.setProperty('--card-bg', '#f2f2f2');
+                document.documentElement.style.setProperty('--text-color', '#000000');
             } else {
-                v.style.display = 'none'; e.style.display = 'flex'; btn.innerText = 'ОК'; renderEditList();
+                document.documentElement.style.setProperty('--bg-color', '#000000');
+                document.documentElement.style.setProperty('--main-color', '#00ff41');
+                document.documentElement.style.setProperty('--card-bg', '#0a0a0a');
+                document.documentElement.style.setProperty('--text-color', '#00ff41');
             }
         }
-
-        function addLesson() {
-            const d = document.getElementById('lesson-day').value;
-            const n = document.getElementById('lesson-name').value.trim();
-            const r = document.getElementById('lesson-room').value.trim();
-            if(n && r) {
-                schedule[d].push({name: n, room: r, hw: ''});
-                localStorage.setItem('mySchedule', JSON.stringify(schedule));
-                document.getElementById('lesson-name').value = '';
-                document.getElementById('lesson-room').value = '';
-                renderEditList();
-            }
-        }
-
-        function renderEditList() {
-            const list = document.getElementById('edit-list');
-            list.innerHTML = '<h4 style="border-bottom:1px solid var(--main-color); padding-bottom:5px;">РЕДАГУВАННЯ:</h4>';
-            const days = ['ПН','ВТ','СР','ЧТ','ПТ'];
-            schedule.forEach((day, dIdx) => {
-                day.forEach((l, lIdx) => {
-                    const item = document.createElement('div');
-                    item.style = 'display:flex; justify-content:space-between; padding:12px 5px; border-bottom:1px solid #333; font-size:14px;';
-                    item.innerHTML = `<span>${days[dIdx]}: ${l.name}</span><button onclick="deleteLesson(${dIdx},${lIdx})" style="color:red; background:none; border:none; font-family:inherit;">ВИДАЛИТИ</button>`;
-                    list.appendChild(item);
-                });
-            });
-        }
-
-        function deleteLesson(d, l) {
-            schedule[d].splice(l, 1);
-            localStorage.setItem('mySchedule', JSON.stringify(schedule));
-            renderEditList();
-        }
-
-        let today = new Date().getDay();
-        currentDayView = (today === 0 || today === 6) ? 0 : today - 1;
-        setDay(currentDayView);
-        tg.ready();
     </script>
 </body>
 </html>
