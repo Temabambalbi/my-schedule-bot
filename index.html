@@ -3,11 +3,10 @@
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> 
-    <title>SYSTEM Minimal Diary</title> 
+    <title>SYSTEM</title> 
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/nolan/512/terminal.png">
     <meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script> 
@@ -15,7 +14,6 @@
         :root { 
             --bg-color: #000000; 
             --main-color: #00ff41; 
-            --card-bg: #000000; 
         } 
 
         html, body { 
@@ -34,18 +32,17 @@
         .back-btn { background: var(--main-color); color: var(--bg-color); border: none; padding: 15px; border-radius: 5px; flex-grow: 1; font-weight: bold; font-family: inherit; cursor: pointer; text-transform: uppercase;} 
 
         .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; } 
-        .hub-btn { background: transparent; border: 2px solid var(--main-color); color: var(--main-color); padding: 25px; font-size: 18px; font-weight: bold; border-radius: 5px; font-family: inherit; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;} 
+        .hub-btn { background: transparent; border: 2px solid var(--main-color); color: var(--main-color); padding: 25px; font-size: 18px; font-weight: bold; border-radius: 5px; font-family: inherit; cursor: pointer; text-transform: uppercase; text-align: left;} 
 
         .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; } 
         .active-screen { display: flex; } 
 
-        /* Окно для ГДЗ сайтов */
         #gdz-browser { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000; z-index: 1000; flex-direction: column;
         }
         #gdz-frame { border: none; width: 100%; flex-grow: 1; }
-        .browser-bar { background: #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--main-color); }
+        .browser-bar { background: #111; padding: 10px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--main-color); }
 
         .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; } 
         .tab-btn { background: none; border: none; color: var(--main-color); font-size: 16px; padding: 10px; font-family: inherit; opacity: 0.5; } 
@@ -58,7 +55,9 @@
         .gdz-list { display: flex; flex-direction: column; gap: 10px; } 
         .gdz-link-btn { background: transparent; color: var(--main-color); padding: 20px; border-radius: 5px; text-align: center; border: 1px solid var(--main-color); font-weight: bold; text-transform: uppercase; cursor: pointer;} 
 
-        .theme-opt { padding: 15px; border-radius: 5px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px;} 
+        .theme-selector { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        .theme-opt { padding: 15px; border-radius: 5px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; text-transform: uppercase;} 
+        
         .edit-input { background: transparent; color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; border-radius: 5px; } 
     </style> 
 </head> 
@@ -66,25 +65,25 @@
 
     <div id="gdz-browser">
         <div class="browser-bar">
-            <span id="browser-title" style="font-size: 12px;">LOADING...</span>
-            <button onclick="closeBrowser()" style="background: var(--main-color); border: none; color: #000; padding: 5px 15px; font-weight: bold; border-radius: 3px;">ЗАКРИТИ X</button>
+            <span id="browser-title" style="font-size: 10px;">BROWSER</span>
+            <button onclick="closeBrowser()" style="background: var(--main-color); border: none; color: #000; padding: 5px 10px; font-weight: bold;">CLOSE X</button>
         </div>
         <iframe id="gdz-frame" src=""></iframe>
     </div>
 
     <div id="main-menu" class="screen active-screen"> 
-        <h1 style="text-align: center; letter-spacing: 5px;">[ SYSTEM ]</h1> 
+        <h1 style="text-align: center; letter-spacing: 8px; font-weight: normal;">SYSTEM</h1> 
         <div class="menu-grid"> 
-            <button class="hub-btn" onclick="showScreen('diary-screen')">> ЩОДЕННИК</button> 
-            <button class="hub-btn" onclick="showScreen('gdz-screen')">> ГДЗ ПОРТАЛ</button> 
-            <button class="hub-btn" style="opacity: 0.6;" onclick="showScreen('settings-screen')">> ТЕМИ</button> 
+            <button class="hub-btn" onclick="showScreen('diary-screen')">📂 ЩОДЕННИК</button> 
+            <button class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ ПОРТАЛ</button> 
+            <button class="hub-btn" onclick="showScreen('settings-screen')">⚙️ ТЕМИ SYSTEM</button> 
         </div> 
     </div> 
 
     <div id="diary-screen" class="screen"> 
         <div class="control-panel"> 
-            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
-            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 5px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← BACK</button> 
+            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 5px; padding: 0 15px;" onclick="toggleEdit()">EDIT</button> 
         </div> 
         <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;"> 
             <div class="tabs"> 
@@ -102,29 +101,31 @@
             </select> 
             <input type="text" id="lesson-name" class="edit-input" placeholder="Предмет"> 
             <input type="text" id="lesson-room" class="edit-input" placeholder="Кабінет"> 
-            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:5px;">+ ДОДАТИ</button> 
+            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold;">+ ADD</button> 
             <div id="edit-list" style="margin-top:20px; overflow-y: auto;"></div> 
         </div> 
     </div> 
 
     <div id="gdz-screen" class="screen"> 
         <div class="control-panel"> 
-            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← BACK</button> 
         </div> 
         <div class="gdz-list"> 
-            <div class="gdz-link-btn" onclick="openBrowser('https://vshkole.com')">VSHKOLE.COM</div> 
-            <div class="gdz-link-btn" onclick="openBrowser('https://gdzonline.net')">GDZONLINE.NET</div> 
+            <div class="gdz-link-btn" onclick="openBrowser('https://vshkole.com')">VSHKOLE (IN-APP)</div> 
+            <div class="gdz-link-btn" onclick="window.open('https://gdzonline.net', '_blank')">GDZONLINE (EXTERNAL)</div> 
         </div> 
     </div> 
 
     <div id="settings-screen" class="screen"> 
         <div class="control-panel"> 
-            <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
+            <button class="back-btn" onclick="showScreen('main-menu')">← BACK</button> 
         </div> 
         <div class="theme-selector"> 
             <div class="theme-opt" style="border-color: #00ff41; color: #00ff41;" onclick="setTheme('green')">MATRIX GREEN</div> 
             <div class="theme-opt" style="border-color: #0077ff; color: #0077ff;" onclick="setTheme('blue')">CYBER BLUE</div> 
+            <div class="theme-opt" style="border-color: #ff0000; color: #ff0000;" onclick="setTheme('red')">ALARM RED</div> 
             <div class="theme-opt" style="border-color: #888888; color: #888888;" onclick="setTheme('gray')">DARK GRAY</div> 
+            <div class="theme-opt" style="border-color: #ffffff; color: #ffffff;" onclick="setTheme('white')">PURE WHITE</div> 
         </div> 
     </div> 
 
@@ -134,15 +135,18 @@
         let currentDayView = 0; 
 
         const themes = { 
-            green: { main: '#00ff41', bg: '#000000' }, 
-            blue: { main: '#0077ff', bg: '#000000' }, 
-            gray: { main: '#888888', bg: '#000000' } 
+            green: { main: '#00ff41' }, 
+            blue: { main: '#0077ff' }, 
+            red: { main: '#ff0000' }, 
+            gray: { main: '#888888' }, 
+            white: { main: '#ffffff' } 
         }; 
 
         function setTheme(name) { 
             const theme = themes[name]; 
             document.documentElement.style.setProperty('--main-color', theme.main); 
             localStorage.setItem('selectedTheme', name); 
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         } 
         setTheme(localStorage.getItem('selectedTheme') || 'green');
 
@@ -152,10 +156,8 @@
             if(id === 'diary-screen') renderSchedule(); 
         } 
 
-        // ФУНКЦИИ БРАУЗЕРА
         function openBrowser(url) {
             document.getElementById('gdz-frame').src = url;
-            document.getElementById('browser-title').innerText = url.replace('https://', '').toUpperCase();
             document.getElementById('gdz-browser').style.display = 'flex';
         }
 
@@ -168,11 +170,11 @@
             const list = document.getElementById('schedule-list'); 
             list.innerHTML = ''; 
             const lessons = schedule[currentDayView]; 
-            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">EMPTY</div>'; return; } 
+            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">_EMPTY_DATA</div>'; return; } 
             lessons.forEach((l, i) => { 
                 const card = document.createElement('div'); 
                 card.className = 'lesson-card'; 
-                card.innerHTML = `<b>${i+1}. ${l.name}</b> [${l.room}]<input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">`; 
+                card.innerHTML = `<b>${i+1}. ${l.name}</b> [${l.room}]<input type="text" class="hw-input" placeholder="Homework..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">`; 
                 list.appendChild(card); 
             }); 
         } 
@@ -207,7 +209,7 @@
             list.innerHTML = ''; 
             const d = document.getElementById('lesson-day').value;
             schedule[d].forEach((l, i) => { 
-                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;"><span>${l.name}</span><button onclick="deleteLesson(${d},${i})" style="color:red; background:none; border:none;">[X]</button></div>`; 
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;"><span>${l.name}</span><button onclick="deleteLesson(${d},${i})" style="color:red; background:none; border:none;">[DELETE]</button></div>`; 
             }); 
         } 
 
