@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> 
-    <title>School Terminal</title> 
+    <title>SYSTEM Minimal Diary</title> 
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,79 +15,77 @@
         :root { 
             --bg-color: #000000; 
             --main-color: #00ff41; 
-            --dark-color: #003300; 
-            --card-bg: #0a0a0a; 
-            --hw-text: #888; 
+            --card-bg: #000000; 
         } 
 
         html, body { 
-            position: fixed; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: var(--bg-color); 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Courier New', Courier, monospace; 
-            transition: 0.3s; 
+            position: fixed; width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--bg-color); margin: 0; padding: 0;
+            font-family: monospace; transition: 0.3s; 
         } 
 
         body { 
-            display: flex; 
-            flex-direction: column; 
-            padding: 15px; 
-            /* Отступ сверху для айфонов с "челкой" */
+            display: flex; flex-direction: column; padding: 15px; 
             padding-top: calc(env(safe-area-inset-top) + 10px); 
-            box-sizing: border-box; 
-            color: var(--main-color); 
+            box-sizing: border-box; color: var(--main-color); 
         } 
 
-        .control-panel { display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0; } 
-        .back-btn { background: var(--main-color); color: var(--bg-color); border: none; padding: 15px; border-radius: 10px; flex-grow: 1; font-weight: bold; font-family: inherit; cursor: pointer; } 
+        .control-panel { display: flex; gap: 10px; margin-bottom: 20px; flex-shrink: 0; } 
+        .back-btn { background: var(--main-color); color: var(--bg-color); border: none; padding: 15px; border-radius: 5px; flex-grow: 1; font-weight: bold; font-family: inherit; cursor: pointer; text-transform: uppercase;} 
 
         .menu-grid { display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center; } 
-        .hub-btn { background: var(--card-bg); border: 2px solid var(--main-color); color: var(--main-color); padding: 30px 20px; font-size: 20px; font-weight: bold; border-radius: 15px; font-family: inherit; cursor: pointer; } 
+        .hub-btn { background: transparent; border: 2px solid var(--main-color); color: var(--main-color); padding: 25px; font-size: 18px; font-weight: bold; border-radius: 5px; font-family: inherit; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;} 
 
         .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; } 
         .active-screen { display: flex; } 
 
-        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; opacity: 0.7; } 
-        .tab-btn { background: none; border: none; color: var(--main-color); font-size: 18px; padding: 10px; font-family: inherit; opacity: 0.5; } 
-        .tab-btn.active { opacity: 1; border-bottom: 2px solid var(--main-color); } 
+        /* Окно для ГДЗ сайтов */
+        #gdz-browser { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 1000; flex-direction: column;
+        }
+        #gdz-frame { border: none; width: 100%; flex-grow: 1; }
+        .browser-bar { background: #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--main-color); }
+
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; border-bottom: 1px solid var(--main-color); flex-shrink: 0; } 
+        .tab-btn { background: none; border: none; color: var(--main-color); font-size: 16px; padding: 10px; font-family: inherit; opacity: 0.5; } 
+        .tab-btn.active { opacity: 1; font-weight: bold; border-bottom: 2px solid var(--main-color); } 
         
-        #schedule-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; -webkit-overflow-scrolling: touch; } 
-        .lesson-card { background: var(--card-bg); border: 1px solid var(--main-color); border-radius: 12px; padding: 15px; margin-bottom: 12px; } 
-        .lesson-main { display: flex; justify-content: space-between; align-items: center; } 
-        .lesson-room { border: 1px solid var(--main-color); padding: 5px 10px; border-radius: 6px; font-weight: bold; } 
-        .hw-input { background: transparent; border: 1px solid var(--main-color); color: var(--main-color); padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; border-radius: 5px; opacity: 0.8; } 
+        #schedule-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px; } 
+        .lesson-card { border-bottom: 1px solid var(--main-color); padding: 15px; } 
+        .hw-input { background: transparent; border: 1px dashed var(--main-color); color: #fff; padding: 8px; width: 100%; box-sizing: border-box; margin-top: 10px; font-family: inherit; } 
 
-        .gdz-list { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-bottom: 30px; } 
-        .gdz-link { background: var(--card-bg); color: var(--main-color); padding: 25px; border-radius: 15px; text-decoration: none; text-align: center; border: 1px solid var(--main-color); font-weight: bold; font-size: 18px; } 
+        .gdz-list { display: flex; flex-direction: column; gap: 10px; } 
+        .gdz-link-btn { background: transparent; color: var(--main-color); padding: 20px; border-radius: 5px; text-align: center; border: 1px solid var(--main-color); font-weight: bold; text-transform: uppercase; cursor: pointer;} 
 
-        .theme-selector { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 20px; } 
-        .theme-opt { padding: 15px; border-radius: 10px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; font-size: 14px; } 
-
-        #diary-edit { flex-grow: 1; overflow-y: auto; padding-bottom: 30px; } 
-        .edit-input { background: var(--card-bg); color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; border-radius: 8px; } 
+        .theme-opt { padding: 15px; border-radius: 5px; border: 2px solid; font-weight: bold; text-align: center; cursor: pointer; margin-bottom: 10px;} 
+        .edit-input { background: transparent; color: var(--main-color); padding: 12px; border: 1px solid var(--main-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; border-radius: 5px; } 
     </style> 
 </head> 
 <body> 
 
+    <div id="gdz-browser">
+        <div class="browser-bar">
+            <span id="browser-title" style="font-size: 12px;">LOADING...</span>
+            <button onclick="closeBrowser()" style="background: var(--main-color); border: none; color: #000; padding: 5px 15px; font-weight: bold; border-radius: 3px;">ЗАКРИТИ X</button>
+        </div>
+        <iframe id="gdz-frame" src=""></iframe>
+    </div>
+
     <div id="main-menu" class="screen active-screen"> 
-        <h1 style="text-align: center; letter-spacing: 5px;">SYSTEM</h1> 
+        <h1 style="text-align: center; letter-spacing: 5px;">[ SYSTEM ]</h1> 
         <div class="menu-grid"> 
-            <button class="hub-btn" onclick="showScreen('diary-screen')">📂 ЩОДЕННИК</button> 
-            <button class="hub-btn" onclick="showScreen('gdz-screen')">🔍 ГДЗ</button> 
-            <button class="hub-btn" style="opacity: 0.6;" onclick="showScreen('settings-screen')">⚙️ ТЕМИ</button> 
+            <button class="hub-btn" onclick="showScreen('diary-screen')">> ЩОДЕННИК</button> 
+            <button class="hub-btn" onclick="showScreen('gdz-screen')">> ГДЗ ПОРТАЛ</button> 
+            <button class="hub-btn" style="opacity: 0.6;" onclick="showScreen('settings-screen')">> ТЕМИ</button> 
         </div> 
     </div> 
 
     <div id="diary-screen" class="screen"> 
         <div class="control-panel"> 
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
-            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 10px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button> 
+            <button id="edit-toggle-btn" style="background: transparent; color: var(--main-color); border: 1px solid var(--main-color); border-radius: 5px; padding: 0 15px;" onclick="toggleEdit()">РЕД.</button> 
         </div> 
-        
         <div id="diary-view" style="display: flex; flex-direction: column; height: 100%;"> 
             <div class="tabs"> 
                 <button class="tab-btn active" onclick="setDay(0)">ПН</button> 
@@ -98,19 +96,14 @@
             </div> 
             <div id="schedule-list"></div> 
         </div> 
-
         <div id="diary-edit" style="display:none; flex-direction: column;"> 
             <select id="lesson-day" class="edit-input"> 
-                <option value="0">Понеділок</option> 
-                <option value="1">Вівторок</option> 
-                <option value="2">Середа</option> 
-                <option value="3">Четвер</option> 
-                <option value="4">П'ятниця</option> 
+                <option value="0">Пн</option><option value="1">Вт</option><option value="2">Ср</option><option value="3">Чт</option><option value="4">Пт</option> 
             </select> 
-            <input type="text" id="lesson-name" class="edit-input" placeholder="Назва предмету"> 
+            <input type="text" id="lesson-name" class="edit-input" placeholder="Предмет"> 
             <input type="text" id="lesson-room" class="edit-input" placeholder="Кабінет"> 
-            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:8px; font-family: inherit;">+ ДОДАТИ</button> 
-            <div id="edit-list" style="margin-top:20px;"></div> 
+            <button onclick="addLesson()" style="padding:15px; background:var(--main-color); color:var(--bg-color); border:none; font-weight:bold; border-radius:5px;">+ ДОДАТИ</button> 
+            <div id="edit-list" style="margin-top:20px; overflow-y: auto;"></div> 
         </div> 
     </div> 
 
@@ -119,8 +112,8 @@
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
         </div> 
         <div class="gdz-list"> 
-            <a href="https://vshkole.com" target="_blank" class="gdz-link">VSHKOLE.COM</a> 
-            <a href="https://gdzonline.net" target="_blank" class="gdz-link">GDZONLINE.NET</a> 
+            <div class="gdz-link-btn" onclick="openBrowser('https://vshkole.com')">VSHKOLE.COM</div> 
+            <div class="gdz-link-btn" onclick="openBrowser('https://gdzonline.net')">GDZONLINE.NET</div> 
         </div> 
     </div> 
 
@@ -128,43 +121,30 @@
         <div class="control-panel"> 
             <button class="back-btn" onclick="showScreen('main-menu')">← МЕНЮ</button> 
         </div> 
-        <h2 style="text-align:center;">ВИБІР ТЕМИ</h2> 
         <div class="theme-selector"> 
-            <div class="theme-opt" style="border-color: #00ff41; color: #00ff41; background: #000;" onclick="setTheme('green')">MATRIX GREEN</div> 
-            <div class="theme-opt" style="border-color: #0077ff; color: #0077ff; background: #000;" onclick="setTheme('blue')">CYBER BLUE</div> 
-            <div class="theme-opt" style="border-color: #ff0000; color: #ff0000; background: #000;" onclick="setTheme('red')">ALARM RED</div> 
-            <div class="theme-opt" style="border-color: #888888; color: #888888; background: #000;" onclick="setTheme('gray')">DARK GRAY</div> 
-            <div class="theme-opt" style="border-color: #000000; color: #000000; background: #ffffff;" onclick="setTheme('light')">LIGHT MODE</div> 
+            <div class="theme-opt" style="border-color: #00ff41; color: #00ff41;" onclick="setTheme('green')">MATRIX GREEN</div> 
+            <div class="theme-opt" style="border-color: #0077ff; color: #0077ff;" onclick="setTheme('blue')">CYBER BLUE</div> 
+            <div class="theme-opt" style="border-color: #888888; color: #888888;" onclick="setTheme('gray')">DARK GRAY</div> 
         </div> 
     </div> 
 
     <script> 
         const tg = window.Telegram.WebApp; 
-        tg.expand(); 
-
-        // ВСЁ ХРАНИТСЯ ТОЛЬКО В localStorage (ПАМЯТЬ БРАУЗЕРА)
         let schedule = JSON.parse(localStorage.getItem('mySchedule')) || [[],[],[],[],[]]; 
         let currentDayView = 0; 
 
         const themes = { 
-            green: { main: '#00ff41', bg: '#000000', card: '#0a0a0a' }, 
-            blue: { main: '#0077ff', bg: '#000000', card: '#000510' }, 
-            red: { main: '#ff0000', bg: '#000000', card: '#0a0000' }, 
-            gray: { main: '#888888', bg: '#000000', card: '#111111' }, 
-            light: { main: '#000000', bg: '#ffffff', card: '#f0f0f0' } 
+            green: { main: '#00ff41', bg: '#000000' }, 
+            blue: { main: '#0077ff', bg: '#000000' }, 
+            gray: { main: '#888888', bg: '#000000' } 
         }; 
 
         function setTheme(name) { 
             const theme = themes[name]; 
             document.documentElement.style.setProperty('--main-color', theme.main); 
-            document.documentElement.style.setProperty('--bg-color', theme.bg); 
-            document.documentElement.style.setProperty('--card-bg', theme.card); 
             localStorage.setItem('selectedTheme', name); 
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); 
         } 
-
-        const savedTheme = localStorage.getItem('selectedTheme') || 'green'; 
-        setTheme(savedTheme); 
+        setTheme(localStorage.getItem('selectedTheme') || 'green');
 
         function showScreen(id) { 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen')); 
@@ -172,15 +152,27 @@
             if(id === 'diary-screen') renderSchedule(); 
         } 
 
+        // ФУНКЦИИ БРАУЗЕРА
+        function openBrowser(url) {
+            document.getElementById('gdz-frame').src = url;
+            document.getElementById('browser-title').innerText = url.replace('https://', '').toUpperCase();
+            document.getElementById('gdz-browser').style.display = 'flex';
+        }
+
+        function closeBrowser() {
+            document.getElementById('gdz-browser').style.display = 'none';
+            document.getElementById('gdz-frame').src = '';
+        }
+
         function renderSchedule() { 
             const list = document.getElementById('schedule-list'); 
             list.innerHTML = ''; 
             const lessons = schedule[currentDayView]; 
-            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">ПУСТО</div>'; return; } 
+            if (lessons.length === 0) { list.innerHTML = '<div style="text-align:center;margin-top:50px;opacity:0.3">EMPTY</div>'; return; } 
             lessons.forEach((l, i) => { 
                 const card = document.createElement('div'); 
                 card.className = 'lesson-card'; 
-                card.innerHTML = `<div class="lesson-main"><div><small style="opacity:0.6">${i+1} УРОК</small><br><b>${l.name}</b></div><div class="lesson-room">${l.room}</div></div><input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">`; 
+                card.innerHTML = `<b>${i+1}. ${l.name}</b> [${l.room}]<input type="text" class="hw-input" placeholder="ДЗ..." value="${l.hw || ''}" onchange="saveHW(${currentDayView},${i},this.value)">`; 
                 list.appendChild(card); 
             }); 
         } 
@@ -188,7 +180,6 @@
         function saveHW(d, i, v) { 
             schedule[d][i].hw = v; 
             localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); 
         } 
 
         function setDay(i) { 
@@ -200,49 +191,30 @@
         function toggleEdit() { 
             const v = document.getElementById('diary-view'); 
             const e = document.getElementById('diary-edit'); 
-            const btn = document.getElementById('edit-toggle-btn'); 
-            if(v.style.display === 'none') { v.style.display = 'flex'; e.style.display = 'none'; btn.innerText = 'РЕД.'; renderSchedule(); } 
-            else { v.style.display = 'none'; e.style.display = 'flex'; btn.innerText = 'ОК'; renderEditList(); } 
+            if(v.style.display === 'none') { v.style.display = 'flex'; e.style.display = 'none'; renderSchedule(); } 
+            else { v.style.display = 'none'; e.style.display = 'flex'; renderEditList(); } 
         } 
 
         function addLesson() { 
             const d = document.getElementById('lesson-day').value; 
-            const n = document.getElementById('lesson-name').value.trim(); 
-            const r = document.getElementById('lesson-room').value.trim(); 
-            if(n && r) { 
-                schedule[d].push({name: n, room: r, hw: ''}); 
-                localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
-                document.getElementById('lesson-name').value = ''; 
-                document.getElementById('lesson-room').value = ''; 
-                renderEditList(); 
-            } 
+            const n = document.getElementById('lesson-name').value; 
+            const r = document.getElementById('lesson-room').value; 
+            if(n) { schedule[d].push({name: n, room: r, hw: ''}); localStorage.setItem('mySchedule', JSON.stringify(schedule)); renderEditList(); } 
         } 
 
         function renderEditList() { 
             const list = document.getElementById('edit-list'); 
             list.innerHTML = ''; 
-            const days = ['ПН','ВТ','СР','ЧТ','ПТ']; 
-            schedule.forEach((day, dIdx) => { 
-                day.forEach((l, lIdx) => { 
-                    const item = document.createElement('div'); 
-                    item.style = 'display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #555; font-size:14px;'; 
-                    item.innerHTML = `<span>${days[dIdx]}: ${l.name}</span><button onclick="deleteLesson(${dIdx},${lIdx})" style="color:red; background:none; border:none; font-family:inherit;">[X]</button>`; 
-                    list.appendChild(item); 
-                }); 
+            const d = document.getElementById('lesson-day').value;
+            schedule[d].forEach((l, i) => { 
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;"><span>${l.name}</span><button onclick="deleteLesson(${d},${i})" style="color:red; background:none; border:none;">[X]</button></div>`; 
             }); 
         } 
 
-        function deleteLesson(d, l) { 
-            schedule[d].splice(l, 1); 
-            localStorage.setItem('mySchedule', JSON.stringify(schedule)); 
-            renderEditList(); 
-        } 
+        function deleteLesson(d, i) { schedule[d].splice(i, 1); localStorage.setItem('mySchedule', JSON.stringify(schedule)); renderEditList(); } 
 
-        // АВТО ОПРЕДЕЛЕНИЕ ТЕКУЩЕГО ДНЯ ПРИ ЗАПУСКЕ
-        let today = new Date().getDay(); 
-        currentDayView = (today === 0 || today === 6) ? 0 : today - 1; 
-        setDay(currentDayView); 
         tg.ready(); 
+        tg.expand();
     </script> 
 </body> 
 </html>
